@@ -1,5 +1,5 @@
 from django.urls import path,re_path,include
-from app_doc import views,views_user,views_search,util_upload_img,views_import,views_api
+from app_doc import views,views_user,views_search,util_upload_img,views_import,views_api,views_stat
 
 urlpatterns = [
     path('',views.project_list,name='pro_list'),# 文档首页
@@ -45,6 +45,7 @@ urlpatterns = [
     #################文档分享相关
     path('share_doc/', views.share_doc, name='share_doc'),  # 私密文档分享
     path('share_doc_check/', views.share_doc_check, name='share_doc_check'),  # 私密文档验证
+    path('share_doc_like/', views_stat.doc_like, name='doc_like'),  # 文档点赞/取消点赞
     path('manage_doc_share/',views.manage_doc_share,name="manage_doc_share"), # 分享文档管理
     #################文档模板相关
     path('manage_doctemp/',views.manage_doctemp,name='manage_doctemp'), # 文档模板列表

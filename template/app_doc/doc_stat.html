@@ -1,0 +1,43 @@
+{% load i18n %}
+{# 文档浏览次数 & 点赞（被 doc.html / share/share_doc.html 引用）#}
+<span class="doc-bottom-icon doc-stat-views" title="{% trans '浏览次数' %}">
+    <i class="layui-icon layui-icon-read"></i> {{ doc.view_count }} {% trans "次浏览" %}
+</span>
+<span class="doc-bottom-icon doc-stat-like{% if doc_liked %} liked{% endif %}" id="doc_like_btn"
+      data-doc-id="{{ doc.id }}" data-token="{{ share_token|default:'' }}" data-url="{% url 'doc_like' %}"
+      title="{% trans '点赞' %}" style="cursor:pointer;user-select:none;">
+    <span class="doc-like-emoji">👍</span> <span id="doc_like_count">{{ doc.like_count }}</span>
+</span>
+<style>
+    .doc-stat-like .doc-like-emoji{filter:grayscale(100%);opacity:.6;transition:all .2s;}
+    .doc-stat-like.liked .doc-like-emoji{filter:none;opacity:1;}
+    .doc-stat-like.liked{color:#1E9FFF;}
+    .doc-stat-like:hover .doc-like-emoji{transform:scale(1.2);}
+</style>
+<script>
+(function(){
+    var btn = document.getElementById('doc_like_btn');
+    if(!btn) return;
+    var busy = false;
+    btn.addEventListener('click', function(){
+        if(busy) return; busy = true;
+        var body = new URLSearchParams();
+        body.append('doc_id', btn.dataset.docId);
+        body.append('token', btn.dataset.token);
+        fetch(btn.dataset.url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded'},
+            body: body.toString()
+        }).then(function(r){ return r.json(); }).then(function(d){
+            if(d.status){
+                document.getElementById('doc_like_count').textContent = d.like_count;
+                btn.classList.toggle('liked', d.liked);
+            }else{
+                alert(d.data || '{% trans "操作失败" %}');
+            }
+        }).catch(function(){ alert('{% trans "网络错误" %}'); })
+          .finally(function(){ busy = false; });
+    });
+})();
+</script>

@@ -83,6 +83,8 @@ class Doc(models.Model):
     editor_mode = models.IntegerField(default=1,verbose_name=_('编辑器模式'))
     open_children = models.BooleanField(default=False,verbose_name=_("展开下级目录"))
     show_children = models.BooleanField(verbose_name=_("显示下级文档"),default=False)
+    view_count = models.PositiveIntegerField(default=0,verbose_name=_("浏览次数"))
+    like_count = models.PositiveIntegerField(default=0,verbose_name=_("点赞数"))
 
     def __str__(self):
         return self.name
@@ -133,6 +135,19 @@ class DocTemp(models.Model):
     class Meta:
         verbose_name = _('文档模板')
         verbose_name_plural = verbose_name
+
+# 文档点赞记录模型（同一访客对同一文档只能点赞一次）
+class DocLike(models.Model):
+    doc = models.ForeignKey(Doc,on_delete=models.CASCADE)
+    # 访客标识：登录用户为 u:<用户ID>，游客为 v:<浏览器随机ID>
+    visitor_key = models.CharField(max_length=64,verbose_name=_("访客标识"))
+    create_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _('文档点赞')
+        verbose_name_plural = verbose_name
+        unique_together = ('doc','visitor_key')
+
 
 # 文档分享模型
 class DocShare(models.Model):

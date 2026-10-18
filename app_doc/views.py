@@ -10,6 +10,7 @@ from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage,InvalidPa
 from django.core.exceptions import PermissionDenied,ObjectDoesNotExist
 from django.core.serializers import serialize
 from app_doc.models import Project,Doc,DocTemp
+from app_doc import views_stat # 文档浏览次数与点赞
 from app_ai.utils import ai_sync_doc,ai_del_doc # AI知识库同步
 from django.contrib.auth.models import User
 from rest_framework.views import APIView # 视图
@@ -993,7 +994,13 @@ def doc_index(request,pro_id=None,doc_id=None,doc=None):
             is_share = False
         # 获取文集下一级文档
         # project_docs = Doc.objects.filter(top_doc=doc.top_doc, parent_doc=0, status=1).order_by('sort')
-        return render(request,'app_doc/doc.html',locals())
+        # 浏览次数 & 点赞状态
+        is_new_view = ('mrdoc_dv_{}'.format(doc.id)) not in request.COOKIES
+        if is_new_view:
+            doc.view_count += 1
+        doc_liked = views_stat.get_doc_stat(request, doc)
+        response = render(request,'app_doc/doc.html',locals())
+        return views_stat.record_doc_view(request, response, doc)
     except Exception as e:
         logger.exception(_("文集浏览出错"))
         return render(request,'404.html')
@@ -1688,9 +1695,14 @@ def share_doc(request):
             doc = share_doc.doc
             if doc.editor_mode == 3:
                 doc.content = sanitize_html(doc.content)
+            # 浏览次数 & 点赞状态
+            if ('mrdoc_dv_{}'.format(doc.id)) not in request.COOKIES:
+                doc.view_count += 1
+            doc_liked = views_stat.get_doc_stat(request, doc)
             # 公开分享
             if share_doc.share_type == 0:
-                return render(request, 'app_doc/share/share_doc.html', locals())
+                response = render(request, 'app_doc/share/share_doc.html', locals())
+                return views_stat.record_doc_view(request, response, doc)
             # 私密分享
             else:
                 doc_id_base64 = base64.standard_b64encode(str(share_doc.doc.id).encode())
@@ -1698,7 +1710,8 @@ def share_doc(request):
                 share_cookie_name = 'sharedoc-{}'.format(share_token)
                 share_value = request.COOKIES.get(share_cookie_name) if share_cookie_name in request.COOKIES.keys() else 0
                 if share_doc.share_value == share_value:
-                    return render(request, 'app_doc/share/share_doc.html', locals())
+                    response = render(request, 'app_doc/share/share_doc.html', locals())
+                    return views_stat.record_doc_view(request, response, doc)
                 else:
                     share_pwd = request.GET.get('pwd', '')
                     return redirect('/share_doc_check/?surl={}&pwd={}'.format(share_token, share_pwd))

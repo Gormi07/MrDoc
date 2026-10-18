@@ -91,6 +91,8 @@
         <i class="layui-icon layui-icon-log"></i> {{ doc.modify_time }}
     </span>
 
+    {% include 'app_doc/doc_stat.html' %}
+
     <button id="share" class="doc-bottom-btn" tooltip="{% trans '转发本文档' %}">
         <i class="layui-icon layui-icon-share" ></i> {% trans "转发文档" %}
     </button>

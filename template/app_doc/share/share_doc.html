@@ -239,6 +239,7 @@
                         <span tooltip="{% trans '更新于:' %}{{doc.modify_time}}">
                             <i class="layui-icon layui-icon-log"></i> {{ doc.modify_time }}
                         </span>
+                        {% include 'app_doc/doc_stat.html' %}
                     </div>
                 {% endblock %}
                 </div>
