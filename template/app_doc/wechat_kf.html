@@ -1,0 +1,114 @@
+{# 右侧中部悬浮"微信客服"按钮：滚动时隐藏，停止滚动约 700ms 后弹回 #}
+{# 被 app_doc/doc.html 与 app_doc/share/share_doc.html 引用 #}
+<a class="mrdoc-wxkf" id="mrdoc_wxkf" href="https://work.weixin.qq.com/kfid/kfc2f48b43282767d5a"
+   target="_blank" rel="noopener noreferrer" title="微信客服" aria-label="微信客服">
+    <span class="mrdoc-wxkf-icon"><svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><path d="M669.3 369.4c9.8 0 19.6 0 29.4 1.6C671 245.2 536.9 152 383.2 152 211.6 152 71 269.7 71 416.8c0 85 45.8 156.9 124.2 210.9l-31.1 93.2L273.6 667c39.2 8.2 70.3 16.3 109.5 16.3 9.8 0 19.6 0 31.1-1.6-6.5-21.3-9.8-42.5-9.8-65.4 0.1-135.7 116.2-246.9 264.9-246.9z m-168.4-85c24.5 0 39.2 16.3 39.2 39.2 0 22.9-16.3 39.2-39.2 39.2-24.5 0-47.4-16.4-47.4-39.2 0-24.5 24.6-39.2 47.4-39.2z m-216.3 73.1c-24.7 0-47.8-16.2-47.8-38.8 0-24.3 24.7-38.8 47.8-38.8s39.5 16.2 39.5 38.8c0.1 22.7-16.4 38.8-39.5 38.8z" fill="#24DB5A"></path><path d="M953.8 613c0-125.9-124.2-227.2-264.8-227.2-148.8 0-266.5 103-266.5 227.2 0 125.9 117.7 227.2 266.5 227.2 31.1 0 62.1-8.2 93.2-16.3l85 47.4-22.9-78.5c62.1-47.4 109.5-109.5 109.5-179.8z m-351.5-39.2c-14.7 0-31.1-14.7-31.1-31.1 0-14.7 16.3-31.1 31.1-31.1 22.9 0 39.2 16.3 39.2 31.1 0 16.4-14.7 31.1-39.2 31.1z m178-7.6c-14.8 0-31.3-14.6-31.3-30.7 0-14.6 16.5-30.7 31.3-30.7 23.1 0 39.5 16.2 39.5 30.7 0 16.2-16.4 30.7-39.5 30.7z" fill="#24DB5A"></path></svg></span>
+    <span class="mrdoc-wxkf-label">微信客服</span>
+</a>
+<style>
+    .mrdoc-wxkf{
+        --kf-size: 52px;
+        --kf-right: calc(16px + env(safe-area-inset-right, 0px));
+        position: fixed;
+        right: var(--kf-right);
+        /* 垂直居中；但始终保持在右下角工具栏(返回顶部/目录/分享/编辑，最高约 205px)之上，且不顶到页眉 */
+        top: max(72px, min(50%, calc(100% - 250px - env(safe-area-inset-bottom, 0px))));
+        width: var(--kf-size);
+        height: var(--kf-size);
+        z-index: 998; /* 低于 MrDoc 工具栏(999)、移动端大纲侧栏(9999)和 layer 弹窗 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 4px 14px rgba(0,0,0,.14), 0 1px 3px rgba(0,0,0,.08);
+        text-decoration: none !important;
+        -webkit-tap-highlight-color: transparent;
+        transform: translate(0, -50%) scale(1);
+        opacity: 1;
+        transition: transform .45s cubic-bezier(.34,1.56,.64,1), opacity .3s ease, box-shadow .2s ease, right .25s ease;
+        will-change: transform, opacity;
+    }
+    .mrdoc-wxkf-icon{ display:block; width: 60%; height: 60%; }
+    .mrdoc-wxkf-icon svg{ display:block; }
+    /* 滚动中：向右滑出并淡出 */
+    .mrdoc-wxkf.is-hidden{
+        transform: translate(calc(100% + var(--kf-right) + 8px), -50%) scale(.85);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform .28s ease-in, opacity .22s ease-in, right .25s ease;
+    }
+    .mrdoc-wxkf:active{ transform: translate(0, -50%) scale(.93); }
+    /* 桌面端悬停提示 */
+    .mrdoc-wxkf-label{
+        position: absolute;
+        right: calc(100% + 10px);
+        top: 50%;
+        transform: translate(6px, -50%);
+        white-space: nowrap;
+        padding: 5px 10px;
+        border-radius: 4px;
+        background: rgba(0,0,0,.75);
+        color: #fff;
+        font-size: 12px;
+        line-height: 1.4;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .2s ease, transform .2s ease;
+    }
+    @media (hover: hover) and (pointer: fine){
+        .mrdoc-wxkf:hover{ box-shadow: 0 6px 20px rgba(36,219,90,.35), 0 2px 6px rgba(0,0,0,.1); }
+        .mrdoc-wxkf:hover .mrdoc-wxkf-label{ opacity: 1; transform: translate(0, -50%); }
+    }
+    @media (hover: none){ .mrdoc-wxkf-label{ display: none; } }
+    /* 移动端：更小、更贴边 */
+    @media screen and (max-width: 768px){
+        .mrdoc-wxkf{
+            --kf-size: 44px;
+            --kf-right: calc(10px + env(safe-area-inset-right, 0px));
+        }
+    }
+    /* 夜间模式下整页被 invert，这里反向还原，保持微信绿 */
+    html.theme-dark .mrdoc-wxkf{ filter: invert(1) hue-rotate(180deg); }
+    @media (prefers-reduced-motion: reduce){
+        .mrdoc-wxkf, .mrdoc-wxkf.is-hidden{ transition: opacity .2s linear; }
+        .mrdoc-wxkf.is-hidden{ transform: translate(0, -50%); }
+    }
+    @media print{ .mrdoc-wxkf{ display: none !important; } }
+</style>
+<script>
+(function(){
+    var btn = document.getElementById('mrdoc_wxkf');
+    if(!btn) return;
+    var IDLE_MS = 700, timer = null;
+
+    // 文档页正文在 #doc-container-body 内滚动（桌面端），移动端可能是 window 滚动；
+    // scroll 事件不冒泡，所以在 document 上用捕获阶段统一监听，任何元素滚动都能收到。
+    function onScroll(){
+        if(!btn.classList.contains('is-hidden')) btn.classList.add('is-hidden');
+        clearTimeout(timer);
+        timer = setTimeout(function(){ btn.classList.remove('is-hidden'); }, IDLE_MS);
+    }
+    var opt = {passive: true, capture: true};
+    document.addEventListener('scroll', onScroll, opt);
+    window.addEventListener('scroll', onScroll, {passive: true});
+
+    // 桌面端打开右侧"文档目录"浮层(#toc-container.sidebar，fixed right:5px)时，按钮挪到目录左侧，避免遮挡
+    var toc = document.getElementById('toc-container');
+    function avoidToc(){
+        btn.style.removeProperty('--kf-right');
+        if(!toc || toc.classList.contains('doc-toc-hide')) return;
+        var t = toc.getBoundingClientRect(), b = btn.getBoundingClientRect();
+        if(t.width === 0 || t.height === 0) return;
+        var overlapY = t.top < b.bottom && t.bottom > b.top;
+        if(overlapY && t.left < window.innerWidth - 4){
+            btn.style.setProperty('--kf-right', (window.innerWidth - t.left + 12) + 'px');
+        }
+    }
+    if(toc && window.MutationObserver){
+        new MutationObserver(avoidToc).observe(toc, {attributes: true, attributeFilter: ['class', 'style'], childList: true});
+    }
+    window.addEventListener('resize', avoidToc, {passive: true});
+    window.addEventListener('load', avoidToc);
+})();
+</script>
